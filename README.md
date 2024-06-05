@@ -1,6 +1,5 @@
 # 柠檬壁纸
 ![icon](include/lemon_64.png)
-
 一个每日自动更换Windows桌面壁纸的软件
 
 ![Language](https://img.shields.io/badge/Language-C%23-blue)
