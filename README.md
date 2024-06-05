@@ -20,6 +20,17 @@
 |.Net版本|V4.7.2|
 |IDE|Visual Studio 2022|
 
+## 适用系统
+理论上适配Win7+系统，依赖.Net Framework 4.7.2。测试结果如下：
+
+|系统|测试结果|
+|:--------:|:--------:|
+|Win7|未测试|
+|Win8|未测试|
+|Win8.1|未测试|
+|Win10|<span style="color:green;">测试通过</span>|
+|Win11|<span style="color:green;">测试通过</span>|
+
 
 ## 快速使用
 从 [Release](https://github.com/DongyangHu/lemon-wallpaper/releases) 下载`.exe`安装包，根据提示完成安装即可
