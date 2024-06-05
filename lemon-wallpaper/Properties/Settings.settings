@@ -1,0 +1,51 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="lemon_wallpaper.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="img_source" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="img_save_path" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="img_expire_time" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="img_update_time" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="img_save_path_prefix" Type="System.String" Scope="User">
+      <Value Profile="(Default)">wallpaper</Value>
+    </Setting>
+    <Setting Name="label_update_time" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="job_run_unit" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">10000</Value>
+    </Setting>
+    <Setting Name="img_history" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="img_history_count" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="img_history_current_index" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">-1</Value>
+    </Setting>
+    <Setting Name="img_change_prompt" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">没有更多的壁纸了</Value>
+    </Setting>
+    <Setting Name="app_version" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">V1.0.0</Value>
+    </Setting>
+    <Setting Name="app_first_run" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="regedit_key" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">LemonWallpaper</Value>
+    </Setting>
+    <Setting Name="app_url" Type="System.String" Scope="User">
+      <Value Profile="(Default)">https://github.com/DongyangHu/lemon-wallpaper</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
