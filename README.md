@@ -28,9 +28,8 @@
 |Win7|未测试|
 |Win8|未测试|
 |Win8.1|未测试|
-|Win10|<span style="color:green;">测试通过</span>|
-|Win11|<span style="color:green;">测试通过</span>|
-
+|Win10|<font color=green>测试通过</font>|
+|Win11|<font color=green>测试通过</font>|
 
 ## 快速使用
 从 [Release](https://github.com/DongyangHu/lemon-wallpaper/releases) 下载`.exe`安装包，根据提示完成安装即可
