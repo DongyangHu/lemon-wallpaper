@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using NLog;
 using System;
 using System.Runtime.InteropServices;
 ///
@@ -21,6 +22,11 @@ namespace lemon_wallpaper
     internal class WallpaperTools
     {
 
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        const int SPI_SETDESKWALLPAPER = 0x0014;
+        const int SPIF_UPDATEINIFILE = 0x01;
+        const int SPIF_SENDCHANGE = 0x02;
+
         /// <summary>
         /// 设置用户系统参数
         /// </summary>
@@ -29,15 +35,22 @@ namespace lemon_wallpaper
         /// <param name="lpvParam">参数</param>
         /// <param name="fuWinIni">更新winini</param>
         /// <returns></returns>
-        [DllImport("user32.dll", EntryPoint = "SystemParametersInfo")]
+        [DllImport("user32.dll", EntryPoint = "SystemParametersInfo", SetLastError = true)]
         static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
 
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        static extern IntPtr SendMessageTimeout(IntPtr hWnd, uint Msg, UIntPtr wParam, string lParam, uint fuFlags, uint uTimeout, out UIntPtr lpdwResult);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 
         public static int SetWallPaper(String path)
         {
-            int result = SystemParametersInfo(0x14, 0, path, 0x2);
+            int result = SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, @path, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
             if (result == 0)
             {
+                int errorCode = Marshal.GetLastWin32Error();
+                Log.Error("SetWallPaper SystemParametersInfo failed, result is zero. errorCode:{}", errorCode);
                 return result;
             }
 
@@ -47,11 +60,26 @@ namespace lemon_wallpaper
                 {
                     key.SetValue(@"WallpaperStyle", "2"); // 0 = 平铺, 1 = 居中, 2 = 填充
                     key.SetValue(@"TileWallpaper", "0"); // 0 = 不平铺, 1 = 水平平铺, 2 = 垂直平铺, 3 = 水平垂直平铺
-                    key.SetValue(@"Wallpaper", path);
-                    return 1;
+                    key.SetValue(@"Wallpaper", @path);
+                    Log.Info("SetWallPaper update registry success");
+                }
+                else
+                {
+                    Log.Error("SetWallPaper update registry failed");
+                    return 0;
                 }
             }
+            RefreshDesktop();
             return result;
+        }
+
+        private static void RefreshDesktop()
+        {
+            IntPtr hwnd = FindWindow("Progman", "Program Manager");
+            if (hwnd != IntPtr.Zero)
+            {
+                SendMessageTimeout(hwnd, 0x052c, (UIntPtr)0, null, 0, 1000, out _);
+            }
         }
     }
 }

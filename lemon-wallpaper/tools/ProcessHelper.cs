@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+using NLog;
 ///
 /// Copyright 2024 DongyangHu, hudongyang123@gmail.com
 ///
@@ -24,6 +25,8 @@ namespace lemon_wallpaper.tools
 {
     public static class ProcessHelper
     {
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
         private static Mutex mutex;
 
         private static bool IsRepeat()
@@ -41,6 +44,7 @@ namespace lemon_wallpaper.tools
 
         public static void ExitProcess()
         {
+            Log.Info("Exit process");
             Release();
             Application.Exit();
             Environment.Exit(0);
@@ -78,42 +82,39 @@ namespace lemon_wallpaper.tools
             }
         }
 
-        public static void CheckRepeat()
+        public static bool CheckRepeat()
         {
-            if (IsRepeat())
-            {
-                ShowProcess();
-                ExitProcess();
-            }
+            return IsRepeat();
         }
 
         public static void SetExecSelfStarting()
         {
+            Log.Info("SetExecSelfStarting enter.");
             try
             {
-                var execPath = Application.ExecutablePath;
+                var newRegistryValue = Application.ExecutablePath + " --autostart";
                 using (RegistryKey registryRoot = Registry.CurrentUser)
                 {
-                    string[] resigetry = new string[] { "Software\\Microsoft\\Windows\\CurrentVersion\\Run", "SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run" };
-                    foreach (var resigetryPath in resigetry)
+                    string[] registry = new string[] { "Software\\Microsoft\\Windows\\CurrentVersion\\Run", "SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run" };
+                    foreach (var registryPath in registry)
                     {
-                        Console.WriteLine("注册表路径:" + resigetryPath);
-                        using (RegistryKey subRegistry = registryRoot.CreateSubKey(resigetryPath))
+                        using (RegistryKey subRegistry = registryRoot.CreateSubKey(registryPath))
                         {
-                            Console.WriteLine("二级路径:" + subRegistry.ToString());
                             if (subRegistry == null)
                             {
+                                Log.Error("SetExecSelfStarting subRegistry is null, resigetryPath:{}, subRegistry:{}", registryPath, subRegistry.ToString());
                                 return;
                             }
                             string name = SettingsTools.GetStringSetting(Constants.REGEDIT_KEY_CONFIG_NAME);
                             var value = subRegistry.GetValue(name) ?? string.Empty;
-                            Console.WriteLine("注册表值:" + value);
-
-                            if (execPath.Equals(value.ToString(), StringComparison.OrdinalIgnoreCase))
+                            Log.Info("SetExecSelfStarting modify registry, registryPath:{}, subRegistry:{}, curValue:{}", registryPath, subRegistry.ToString(), value);
+                            if (newRegistryValue.Equals(value.ToString(), StringComparison.OrdinalIgnoreCase))
                             {
+                                Log.Info("SetExecSelfStarting skip modify registry");
                                 return;
                             }
-                            subRegistry.SetValue(name, execPath + " --autostart");
+                            subRegistry.SetValue(name, newRegistryValue);
+                            Log.Info("SetExecSelfStarting modify registry, oldValue:{}, newValue:{}", value, newRegistryValue);
                         }
                     }
                 }
@@ -129,6 +130,7 @@ namespace lemon_wallpaper.tools
             string executablePath = Application.ExecutablePath;
             bool needAdmin = executablePath.StartsWith(@"C:\Program Files (x86)", StringComparison.OrdinalIgnoreCase) ||
                 executablePath.StartsWith(@"C:\Program Files", StringComparison.OrdinalIgnoreCase);
+            Log.Info("RunAdmin logic,executablePath:{}, needAmin:{}.", executablePath, needAdmin);
             if (!needAdmin)
             {
                 return;

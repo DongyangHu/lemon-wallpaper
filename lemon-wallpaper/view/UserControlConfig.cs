@@ -1,6 +1,7 @@
 ﻿using lemon_wallpaper.config;
 using lemon_wallpaper.service.impl;
 using lemon_wallpaper.tools;
+using NLog;
 using System;
 using System.Drawing;
 using System.IO;
@@ -25,9 +26,9 @@ namespace lemon_wallpaper.view
 {
     public partial class UserControlConfig : UserControl, ICustomInit
     {
-
-        private WallpaperService wallpaperService;
-        private ImgHistoryService imgHistoryService;
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private readonly WallpaperService wallpaperService;
+        private readonly ImgHistoryService imgHistoryService;
 
         public UserControlConfig()
         {
@@ -58,7 +59,9 @@ namespace lemon_wallpaper.view
         /// <param name="e"></param>
         private void comboBox_source_SelectedValueChanged(object sender, EventArgs e)
         {
-            SettingsTools.UpdateSetting(Constants.IMG_SOURCE_CONFIG_NAME, ((ComboBox)sender).SelectedIndex);
+            int selectedIndex = ((ComboBox)sender).SelectedIndex;
+            Log.Info("Change wallpaper source, index:{}", selectedIndex);
+            SettingsTools.UpdateSetting(Constants.IMG_SOURCE_CONFIG_NAME, selectedIndex);
         }
 
         /// <summary>
@@ -75,12 +78,14 @@ namespace lemon_wallpaper.view
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
                 string path = folderBrowserDialog.SelectedPath.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar + SettingsTools.GetStringSetting(Constants.IMG_SAVE_PATH_PREFIX_CONFIG_NAME);
+                Log.Info("Change wallpaper save path, path:{}", path);
                 SettingsTools.UpdateSetting(Constants.IMG_SAVE_PATH_CONFIG_NAME, path);
             }
         }
 
         private void AsyncJob()
         {
+            Log.Info("Async job init.");
             Thread thread = ThreadTools.buildThread("wallpaper-manager", () =>
             {
                 while (true)
@@ -88,13 +93,13 @@ namespace lemon_wallpaper.view
                     try
                     {
                         Thread.Sleep(SettingsTools.GetIntSetting(Constants.JOB_RUN_UNIT_CONFIG_NAME));
-                        // 清理过期壁纸
-                        // 统计图片占用空间
+                        Log.Info("[AsyncJob] running...");
                         this.imgHistoryService.DeleteExpireImg();
+                        Log.Info("[AsyncJob] DeleteExpireImg end.");
 
                         if (!RunEnable())
                         {
-                            Console.WriteLine("壁纸已经更换，跳过");
+                            Log.Info("[AsyncJob] Wallpaper was chaned today, skip running.");
                             continue;
                         }
                         //init data
@@ -105,14 +110,16 @@ namespace lemon_wallpaper.view
                         string imgUrl = this.wallpaperService.DownloadImg(source);
                         if (imgUrl == null)
                         {
+                            Log.Error("[AsyncJob] download wallpaper is failed.");
                             continue;
                         }
-                        Console.WriteLine(imgUrl);
 
                         // 修改壁纸,更新修改时间
+                        Log.Error("[AsyncJob] update wallpaper, path:{}", imgUrl);
                         int setResult = this.imgHistoryService.SetWallpaper(imgUrl);
                         if (setResult == 0)
                         {
+                            Log.Error("[AsyncJob] update wallpaper failed, setResult is zero");
                             continue;
                         }
                         else

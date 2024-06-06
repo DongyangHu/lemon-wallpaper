@@ -2,6 +2,7 @@
 using lemon_wallpaper.service.impl;
 using lemon_wallpaper.tools;
 using lemon_wallpaper.view;
+using NLog;
 using System;
 using System.Diagnostics;
 using System.Reflection;
@@ -25,12 +26,12 @@ namespace lemon_wallpaper
 {
     public partial class FormMain : Form
     {
-
-        private UserControlConfig userControlConfig;
-        private FormAbout formAbout;
-        private FormUserGuide formUserGuide;
-        private ImgHistoryService imgHistoryService;
-        private bool isAutoRun;
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private readonly UserControlConfig userControlConfig;
+        private readonly FormAbout formAbout;
+        private readonly FormUserGuide formUserGuide;
+        private readonly ImgHistoryService imgHistoryService;
+        private readonly bool isAutoRun;
 
         public FormMain(bool isAutoRun)
         {
@@ -72,6 +73,7 @@ namespace lemon_wallpaper
             }
             catch (Exception e)
             {
+                Log.Error("Change View custom initialize error.", e);
                 MessageBox.Show(userControl.Name + "初始化失败，可能导致运行异常！" + e.Message);
             }
         }
@@ -167,7 +169,7 @@ namespace lemon_wallpaper
                 return;
             }
             int result = this.imgHistoryService.SetWallpaper(imgIndex);
-            if(result == 0)
+            if (result == 0)
             {
                 new FormPrompt(SettingsTools.GetStringSetting(Constants.IMG_CHANGE_PROMPT_CONFIG_NAME)).ShowDialog();
                 return;

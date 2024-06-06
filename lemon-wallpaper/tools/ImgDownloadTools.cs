@@ -4,6 +4,8 @@ using System.Net.Http;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NLog;
+using System.Security.Policy;
 ///
 /// Copyright 2024 DongyangHu, hudongyang123@gmail.com
 ///
@@ -23,13 +25,16 @@ namespace lemon_wallpaper.tools
 {
     internal class ImgDownloadTools
     {
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         private static readonly HttpClient _httpClient = new HttpClient();
 
         public static async Task<string> HttpRequest(ImgSourceConfig.Source source, Func<JObject, ImgSourceConfig.Source, string> imgUrlfunc)
         {
             try
             {
-                HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync(source.BaseUrl + source.SubUrl);
+                string url = source.BaseUrl + source.SubUrl;
+                Log.Info("HttpRequest url:{}", url);
+                HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync(url);
                 httpResponseMessage.EnsureSuccessStatusCode();
                 string jsonContent = await httpResponseMessage.Content.ReadAsStringAsync();
                 JObject jObject = JsonConvert.DeserializeObject<JObject>(jsonContent);
@@ -40,8 +45,7 @@ namespace lemon_wallpaper.tools
             }
             catch (Exception e)
             {
-                Console.WriteLine("\nException Caught!");
-                Console.WriteLine("Message :{0} ", e.Message);
+                Log.Error("HttpRequest failed. Message:{}, StackTrace:{}", e.Message, e.StackTrace);
             }
             return null;
         }
@@ -50,8 +54,10 @@ namespace lemon_wallpaper.tools
         {
             try
             {
+                Log.Info("DownloadFile url:{}, filePath:{}, fileName:{}", url, filePath, fileName);
                 if (!ExistsOrCreateDirectory(filePath))
                 {
+                    Log.Error("DownloadFile filePath create failed. filePath:{}", filePath);
                     return false;
                 }
                 string realPath = filePath + Path.DirectorySeparatorChar + fileName;
@@ -72,8 +78,7 @@ namespace lemon_wallpaper.tools
             }
             catch (Exception e)
             {
-                Console.WriteLine("\nException Caught!");
-                Console.WriteLine("Message :{0} ", e.Message);
+                Log.Error("DownloadFile failed.", e);
             }
             return false;
         }

@@ -19,9 +19,9 @@ namespace lemon_wallpaper
 {
     public static class ImgSourceConfig
     {
-        public static Source BING = Source.Create(0, "BING", "https://www.bing.com", "/HPImageArchive.aspx?format=js&n=1");
-        public static Source BING_MODEL = Source.Create(1, "BING_MODEL", "https://cn.bing.com", "/hp/api/model");
-        public static Source WALLHAVEN = Source.Create(2, "WALLHAVEN", "https://wallhaven.cc", "/api/v1/search?resolutions=1920x1080&sorting=random");
+        public static Source BING = Source.Create(0, "BING", "http://www.bing.com", "/HPImageArchive.aspx?format=js&n=1");
+        public static Source BING_MODEL = Source.Create(1, "BING_MODEL", "http://cn.bing.com", "/hp/api/model");
+        public static Source WALLHAVEN = Source.Create(2, "WALLHAVEN", "http://wallhaven.cc", "/api/v1/search?resolutions=1920x1080&sorting=random");
 
 
         private static readonly Dictionary<int, Source> SOURCE_INDEX_MAP;

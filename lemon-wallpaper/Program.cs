@@ -1,4 +1,5 @@
 ﻿using lemon_wallpaper.tools;
+using NLog;
 using System;
 using System.Windows.Forms;
 
@@ -20,15 +21,22 @@ namespace lemon_wallpaper
 {
     internal static class Program
     {
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// 应用程序的主入口点。
         /// </summary>
         [STAThread]
         static void Main(string[] args)
         {
-            ProcessHelper.CheckRepeat();
+            Log.Info("Lemon Wallpaper Run...");
+            bool repeat = ProcessHelper.CheckRepeat();
+            if (repeat)
+            {
+                Log.Info("CheckRepeat, exists process so skip run.");
+                return;
+            }
             ProcessHelper.RunAdmin();
-
             Run(args);
         }
 

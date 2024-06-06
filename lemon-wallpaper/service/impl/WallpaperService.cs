@@ -1,5 +1,6 @@
 ﻿using lemon_wallpaper.config;
 using lemon_wallpaper.tools;
+using NLog;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -24,18 +25,21 @@ namespace lemon_wallpaper.service.impl
     internal class WallpaperService : IWallpaperService
     {
 
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
         public string DownloadImg(ImgSourceConfig.Source source)
         {
             Task<string> task = this.BuildImgUrl(source);
             string downUrl = task.Result;
             if (downUrl == null)
             {
+                Log.Error("DownloadImg BuildImgUrl failed.");
                 return null;
             }
-            Console.WriteLine(downUrl);
             Task<bool> result = ImgDownloadTools.DownloadFile(downUrl, SettingsTools.GetStringSetting(Constants.IMG_SAVE_PATH_CONFIG_NAME), this.BuildFileName());
             if (!result.Result)
             {
+                Log.Info("DownloadImg download file is failed.");
                 return null;
             }
             return SettingsTools.GetStringSetting(Constants.IMG_SAVE_PATH_CONFIG_NAME) + Path.DirectorySeparatorChar + this.BuildFileName();
@@ -83,6 +87,7 @@ namespace lemon_wallpaper.service.impl
             {
                 Directory.CreateDirectory(@initSavePath);
             }
+            Log.Info("Initialize images save path, directory:{}", initSavePath);
             SettingsTools.UpdateSetting(Constants.IMG_SAVE_PATH_CONFIG_NAME, initSavePath);
             SettingsTools.UpdateSetting(Constants.APP_FIRST_RUN_CONFIG_NAME, false);
         }

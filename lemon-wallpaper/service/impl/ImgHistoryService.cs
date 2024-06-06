@@ -1,5 +1,6 @@
 ﻿using lemon_wallpaper.config;
 using lemon_wallpaper.tools;
+using NLog;
 using System;
 using System.IO;
 ///
@@ -21,6 +22,7 @@ namespace lemon_wallpaper.service.impl
 {
     internal class ImgHistoryService : AbstractImgHistoryService
     {
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         private static string[] imgHistoryArray;
         private int imgIndexCurrent;
 
@@ -41,6 +43,8 @@ namespace lemon_wallpaper.service.impl
             imgHistoryArray = new string[historyCount];
             // read the saved history
             string history = SettingsTools.GetStringSetting(Constants.IMG_HISTORY_CONFIG_NAME);
+
+            Log.Info("DoInit start. historyCount:{}, imgIndexCurrent:{}, history:{}", historyCount, this.imgIndexCurrent, history);
             if (string.IsNullOrEmpty(history))
             {
                 return;
@@ -55,6 +59,7 @@ namespace lemon_wallpaper.service.impl
                 {
                     hasNotExistsImg = true;
                     diff++;
+                    Log.Error("DoInit, image is not exists, path:{}", historyArray[i]);
                     continue;
                 }
                 imgHistoryArray[i - diff] = historyArray[i];
@@ -65,6 +70,7 @@ namespace lemon_wallpaper.service.impl
             }
             if (hasNotExistsImg)
             {
+                Log.Error("DoInit, there are some images are not exists, so update settings");
                 this.UpdateSettings(this.imgIndexCurrent, true);
             }
         }
@@ -109,6 +115,7 @@ namespace lemon_wallpaper.service.impl
         {
             if (!this.ImgExists(imgPath))
             {
+                Log.Error("DoSetWallpaper image is not exists. file:{}", imgPath);
                 return 0;
             }
 
@@ -198,6 +205,7 @@ namespace lemon_wallpaper.service.impl
             ImgExpireTimeConfig.ExpireTime expireTime = ImgExpireTimeConfig.ForIndex(SettingsTools.GetIntSetting(Constants.IMG_EXPIRE_TIME_CONFIG_NAME));
             if (expireTime == null || expireTime.Days <= 0)
             {
+                Log.Info("DoDeleteExpireImg is skipped, according to expire time");
                 return;
             }
 
@@ -205,6 +213,7 @@ namespace lemon_wallpaper.service.impl
             string path = SettingsTools.GetStringSetting(Constants.IMG_SAVE_PATH_CONFIG_NAME);
             if (!Directory.Exists(@path))
             {
+                Log.Error("DoDeleteExpireImg image save path is not exists, path:{}", path);
                 return;
             }
 
@@ -226,6 +235,7 @@ namespace lemon_wallpaper.service.impl
                 }
             }
             this.DoInit();
+            Log.Info("DoDeleteExpireImg complete");
         }
     }
 }
