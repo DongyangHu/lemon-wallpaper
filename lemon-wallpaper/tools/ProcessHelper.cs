@@ -127,10 +127,11 @@ namespace lemon_wallpaper.tools
         public static void RunAdmin()
         {
             string executablePath = Application.ExecutablePath;
-            bool needAdmin = executablePath.StartsWith(@"C:\Program Files (x86)", StringComparison.OrdinalIgnoreCase) ||
+            bool runAppPath = executablePath.StartsWith(@"C:\Program Files (x86)", StringComparison.OrdinalIgnoreCase) ||
                 executablePath.StartsWith(@"C:\Program Files", StringComparison.OrdinalIgnoreCase);
-            Log.Info("RunAdmin logic,executablePath:{}, needAmin:{}.", executablePath, needAdmin);
-            if (!needAdmin)
+            bool runWithWin7C = RunWithWin7() && executablePath.StartsWith(@"C:\", StringComparison.OrdinalIgnoreCase);
+            Log.Info("RunAdmin logic,executablePath:{}, runAppPath:{}, win7C:{}.", executablePath, runWithWin7C);
+            if (!runAppPath && !runWithWin7C)
             {
                 return;
             }
