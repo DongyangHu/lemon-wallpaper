@@ -1,6 +1,10 @@
-﻿using Microsoft.Win32;
+﻿using lemon_wallpaper.tools;
+using Microsoft.Win32;
 using NLog;
 using System;
+using System.Drawing.Imaging;
+using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
 ///
 /// Copyright 2024 DongyangHu, hudongyang123@gmail.com
@@ -46,28 +50,16 @@ namespace lemon_wallpaper
 
         public static int SetWallPaper(String path)
         {
+            if (!ModifyRegistry(path))
+            {
+                return 0;
+            }
             int result = SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, @path, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
             if (result == 0)
             {
                 int errorCode = Marshal.GetLastWin32Error();
                 Log.Error("SetWallPaper SystemParametersInfo failed, result is zero. errorCode:{}", errorCode);
                 return result;
-            }
-
-            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true))
-            {
-                if (key != null)
-                {
-                    key.SetValue(@"WallpaperStyle", "2"); // 0 = 平铺, 1 = 居中, 2 = 填充
-                    key.SetValue(@"TileWallpaper", "0"); // 0 = 不平铺, 1 = 水平平铺, 2 = 垂直平铺, 3 = 水平垂直平铺
-                    key.SetValue(@"Wallpaper", @path);
-                    Log.Info("SetWallPaper update registry success");
-                }
-                else
-                {
-                    Log.Error("SetWallPaper update registry failed");
-                    return 0;
-                }
             }
             RefreshDesktop();
             return result;
@@ -80,6 +72,50 @@ namespace lemon_wallpaper
             {
                 SendMessageTimeout(hwnd, 0x052c, (UIntPtr)0, null, 0, 1000, out _);
             }
+        }
+
+        private static bool ModifyRegistry(string path)
+        {
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true))
+            {
+                if (key != null)
+                {
+                    key.SetValue(@"WallpaperStyle", "2"); // 0 = 平铺, 1 = 居中, 2 = 填充
+                    key.SetValue(@"TileWallpaper", "0"); // 0 = 不平铺, 1 = 水平平铺, 2 = 垂直平铺, 3 = 水平垂直平铺
+                    key.SetValue(@"Wallpaper", @path);
+                    Log.Info("SetWallPaper update registry success");
+                }
+                else
+                {
+                    Log.Error("SetWallPaper update registry failed");
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public static string TransImg(string path)
+        {
+            if (!ProcessHelper.RunWithWin7())
+            {
+                return path;
+            }
+            if(path.EndsWith(".bmp", StringComparison.OrdinalIgnoreCase))
+            {
+                return path;
+            }
+
+            string bmpFilePath = Path.ChangeExtension(path, ".bmp");
+            using (Image jpegImage = Image.FromFile(path))
+            {
+                Bitmap bmpImage = new Bitmap(jpegImage.Width, jpegImage.Height);
+                using (Graphics graphics = Graphics.FromImage(bmpImage))
+                {
+                    graphics.DrawImage(jpegImage, 0, 0, jpegImage.Width, jpegImage.Height);
+                }
+                bmpImage.Save(bmpFilePath, ImageFormat.Bmp);
+            }
+            return bmpFilePath;
         }
     }
 }

@@ -37,7 +37,7 @@ namespace lemon_wallpaper.tools
             return !createNew;
         }
 
-        private static void Release()
+        public static void Release()
         {
             mutex?.ReleaseMutex();
         }
@@ -47,7 +47,6 @@ namespace lemon_wallpaper.tools
             Log.Info("Exit process");
             Release();
             Application.Exit();
-            Environment.Exit(0);
         }
 
 
@@ -139,6 +138,13 @@ namespace lemon_wallpaper.tools
             {
                 RunAdminTools.RestartAsAdmin();
             }
+        }
+
+        public static bool RunWithWin7()
+        {
+            OperatingSystem os = Environment.OSVersion;
+            Version version = os.Version;
+            return version.Major == 6 && version.Minor == 1;
         }
     }
 }

@@ -118,10 +118,10 @@ namespace lemon_wallpaper.service.impl
                 Log.Error("DoSetWallpaper image is not exists. file:{}", imgPath);
                 return 0;
             }
-
+            string realPath = WallpaperTools.TransImg(imgPath);
             // Must change config firstly
-            this.AddElement(imgPath);
-            return WallpaperTools.SetWallPaper(imgPath);
+            this.AddElement(realPath);
+            return WallpaperTools.SetWallPaper(realPath);
         }
 
         protected override int DoSetWallpaper(int imgIndex)

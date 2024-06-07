@@ -115,7 +115,7 @@ namespace lemon_wallpaper.view
                         }
 
                         // 修改壁纸,更新修改时间
-                        Log.Error("[AsyncJob] update wallpaper, path:{}", imgUrl);
+                        Log.Info("[AsyncJob] update wallpaper, path:{}", imgUrl);
                         int setResult = this.imgHistoryService.SetWallpaper(imgUrl);
                         if (setResult == 0)
                         {

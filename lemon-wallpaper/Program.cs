@@ -29,15 +29,23 @@ namespace lemon_wallpaper
         [STAThread]
         static void Main(string[] args)
         {
-            Log.Info("Lemon Wallpaper Run...");
-            bool repeat = ProcessHelper.CheckRepeat();
-            if (repeat)
+            try
             {
-                Log.Info("CheckRepeat, exists process so skip run.");
-                return;
+                Log.Info("Lemon Wallpaper Run...");
+                bool repeat = ProcessHelper.CheckRepeat();
+                if (repeat)
+                {
+                    Log.Info("CheckRepeat, exists process so skip run.");
+                    ProcessHelper.Release();
+                    return;
+                }
+                ProcessHelper.RunAdmin();
+                Run(args);
             }
-            ProcessHelper.RunAdmin();
-            Run(args);
+            catch (Exception e)
+            {
+                Log.Error("Main exception. message:{}\n StackTrace:{}", e.Message, e.StackTrace);
+            }
         }
 
         static void Run(string[] args)
