@@ -25,7 +25,7 @@
 
 |系统|测试结果|
 |:--------:|:--------:|
-|Win7|未测试|
+|Win7|<span style="color:green;">测试通过</span>|
 |Win8|未测试|
 |Win8.1|未测试|
 |Win10|<span style="color:green;">测试通过</span>|
