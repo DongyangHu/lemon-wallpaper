@@ -31,8 +31,6 @@
 |Win10|<span style="color:green;">测试通过</span>|
 |Win11|<span style="color:green;">测试通过</span>|
 
-<font color=red>红色</font>
-
 
 
 ## 快速使用
